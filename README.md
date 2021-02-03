@@ -10,9 +10,9 @@ fully respecting your privacy. Currently in alpha/early-beta state.
 ## Public Alpha Test Programme
 Wanna try it out on your device? Use one of the following options:
 
-_A. IzzySoft's repo for F-Droid_:
+_A. Get it on F-Droid_:
 
-[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" height="64" alt="IzzySoft repo badge">](https://apt.izzysoft.de/fdroid/index/apk/dev.patrickgold.florisboard)
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" height="64" alt="F-Droid badge">](https://f-droid.org/packages/dev.patrickgold.florisboard)
 
 _B. Google Play Public Alpha Test_:
 
@@ -31,16 +31,14 @@ tester, follow these steps:
 4. Finished! You will receive future versions of FlorisBoard via Google
    Play.
 
+With the v0.4.0 release FlorisBoard will enter the public beta in GPlay, allowing to directly search
+for and download FlorisBoard without prior joining the alpha group.
+
 _C. Use the APK provided in the release section of this repo_
 
 ### Giving feedback
 If you want to give feedback to FlorisBoard, there are several ways to
 do so, as listed [here](CONTRIBUTING.md#giving-general-feedback).
-
-### Note on F-Droid release
-FlorisBoard is currently available through Google Play and IzzySoft's
-repo for F-Droid, but is in the inclusion process for the main F-Droid
-repo.
 
 ---
 
@@ -65,9 +63,10 @@ milestones, please refer to the [Feature roadmap](#feature-roadmap).
 
 ### Layouts
 * [x] Latin character layouts (QWERTY, QWERTZ, AZERTY, Swiss, Spanish,
-      Norwegian, Swedish/Finnish, Icelandic, Danish, Hungarian); more
-      coming in future versions
-* [x] Non-latin character layouts (Arabic, Persian)
+      Norwegian, Swedish/Finnish, Icelandic, Danish, Hungarian,
+      Croatian, Polish, Romanian); more coming in future versions
+* [x] Non-latin character layouts (Arabic, Persian, Greek, Russian
+      (JCUKEN))
 * [x] Adapt to situation in app (password, url, text, etc. )
 * [x] Special character layout(s)
 * [x] Numeric layout
@@ -80,7 +79,7 @@ milestones, please refer to the [Feature roadmap](#feature-roadmap).
 * [x] Setup wizard
 * [x] Preferences screen
 * [x] Customize look and behaviour of keyboard
-* [x] Theme presets (currently only day/night theme)
+* [x] Theme presets (currently only day/night theme + borderless)
 * [x] Theme customization
 * [x] Subtype selection (language/layout)
 * [x] Keyboard behaviour preferences
@@ -123,8 +122,8 @@ close as possible.
     words over time. Data collected here is stored locally and never leaves
     the user's device.
 
-- Module C: Extension packs
-  - Ability to load dictionaries (and later potentionally other cool
+- Module C: Extension packs (base implementation with #162)
+  - Ability to load dictionaries (and later potentially other cool
     features too) only if needed to keep the core APK size small
   - Currently unclear how exactly this will work, but this is definitely
     a must-have feature
@@ -132,6 +131,14 @@ close as possible.
 - Module D: Glide typing
   - Swiping over the characters will automatically convert this to a word
   - Possibly also add improvements based on the Flow keyboard
+
+- Module E: Theme rework (Implemented with #162)
+  - Themes are now based on the Asset schema
+  - Dynamic theme creation
+  - Different theme modes (`Always day`, `Always dark`, `Follow system`
+    and `Follow time`)
+  - Define a separate theme both for day and night theme
+  - Adapt to app theme if possible
 
 ### [v0.5.0](https://github.com/florisboard/florisboard/milestone/5)
 There's no exact roadmap yet but it is planned that the media part of
@@ -171,6 +178,8 @@ to get more information on this topic.
   [JakeWharton](https://github.com/JakeWharton)
 * [kotlin-result](https://github.com/michaelbull/kotlin-result) by
   [Michael Bull](https://github.com/michaelbull)
+* [expandable-fab](https://github.com/nambicompany/expandable-fab) by
+  [Nambi](https://github.com/nambicompany)
 
 ## License
 ```

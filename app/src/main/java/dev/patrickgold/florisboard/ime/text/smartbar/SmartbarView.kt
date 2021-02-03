@@ -17,7 +17,6 @@
 package dev.patrickgold.florisboard.ime.text.smartbar
 
 import android.content.Context
-import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.View
 import android.widget.Button
@@ -31,11 +30,14 @@ import dev.patrickgold.florisboard.ime.core.PrefHelper
 import dev.patrickgold.florisboard.ime.core.Subtype
 import dev.patrickgold.florisboard.ime.text.key.KeyVariation
 import dev.patrickgold.florisboard.ime.text.keyboard.KeyboardMode
+import dev.patrickgold.florisboard.ime.theme.Theme
+import dev.patrickgold.florisboard.ime.theme.ThemeManager
 import dev.patrickgold.florisboard.util.setBackgroundTintColor2
 import dev.patrickgold.florisboard.util.setDrawableTintColor2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
@@ -45,9 +47,10 @@ import kotlin.math.roundToInt
  * of FlorisBoard. The view automatically tries to get the current FlorisBoard instance, which it
  * needs to decide when a specific feature component is shown.
  */
-class SmartbarView : ConstraintLayout {
+class SmartbarView : ConstraintLayout, ThemeManager.OnThemeUpdatedListener {
     private val florisboard: FlorisBoard? = FlorisBoard.getInstanceOrNull()
     private val prefs: PrefHelper = PrefHelper.getDefaultInstance(context)
+    private val themeManager = ThemeManager.default()
     private var eventListener: WeakReference<EventListener?>? = null
     private val mainScope = MainScope()
 
@@ -104,7 +107,6 @@ class SmartbarView : ConstraintLayout {
 
         binding.backButton.setOnClickListener { eventListener?.get()?.onSmartbarBackButtonPressed() }
 
-        binding.clipboardCursorRow.isSmartbarKeyboardView = true
         mainScope.launch(Dispatchers.Default) {
             florisboard?.let {
                 val layout = florisboard.textInputManager.layoutManager.fetchComputedLayoutAsync(
@@ -112,7 +114,7 @@ class SmartbarView : ConstraintLayout {
                     Subtype.DEFAULT,
                     prefs
                 ).await()
-                launch(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     binding.clipboardCursorRow.computedLayout = layout
                     binding.clipboardCursorRow.updateVisibility()
                 }
@@ -125,7 +127,6 @@ class SmartbarView : ConstraintLayout {
             updateSmartbarState()
         }
 
-        binding.numberRow.isSmartbarKeyboardView = true
         mainScope.launch(Dispatchers.Default) {
             florisboard?.let {
                 val layout = it.textInputManager.layoutManager.fetchComputedLayoutAsync(
@@ -133,7 +134,7 @@ class SmartbarView : ConstraintLayout {
                     Subtype.DEFAULT,
                     prefs
                 ).await()
-                launch(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     binding.numberRow.computedLayout = layout
                     binding.numberRow.updateVisibility()
                 }
@@ -146,7 +147,9 @@ class SmartbarView : ConstraintLayout {
 
         for (quickAction in binding.quickActions.children) {
             if (quickAction is SmartbarQuickActionButton) {
-                quickAction.setOnClickListener { eventListener?.get()?.onSmartbarQuickActionPressed(quickAction.id) }
+                quickAction.id.let { quickActionId ->
+                    quickAction.setOnClickListener { eventListener?.get()?.onSmartbarQuickActionPressed(quickActionId) }
+                }
             }
         }
 
@@ -163,9 +166,16 @@ class SmartbarView : ConstraintLayout {
             actionEndAreaId = null
         )
 
-        updateTheme()
+        themeManager.registerOnThemeUpdatedListener(this)
 
         florisboard?.textInputManager?.registerSmartbarView(this)
+    }
+
+    override fun onDetachedFromWindow() {
+        eventListener = null
+        florisboard?.textInputManager?.unregisterSmartbarView(this)
+        themeManager.unregisterOnThemeUpdatedListener(this)
+        super.onDetachedFromWindow()
     }
 
     /**
@@ -317,14 +327,15 @@ class SmartbarView : ConstraintLayout {
         super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(height.roundToInt(), MeasureSpec.EXACTLY))
     }
 
-    private fun updateTheme() {
-        setBackgroundColor(prefs.theme.smartbarBgColor)
-        setBackgroundTintColor2(binding.clipboardSuggestion, prefs.theme.smartbarButtonBgColor)
-        setDrawableTintColor2(binding.clipboardSuggestion, prefs.theme.smartbarButtonFgColor)
-        binding.clipboardSuggestion.setTextColor(prefs.theme.smartbarButtonFgColor)
+    override fun onThemeUpdated(theme: Theme) {
+        setBackgroundColor(theme.getAttr(Theme.Attr.SMARTBAR_BACKGROUND).toSolidColor().color)
+        setBackgroundTintColor2(binding.clipboardSuggestion, theme.getAttr(Theme.Attr.SMARTBAR_BUTTON_BACKGROUND).toSolidColor().color)
+        setDrawableTintColor2(binding.clipboardSuggestion, theme.getAttr(Theme.Attr.SMARTBAR_BUTTON_FOREGROUND).toSolidColor().color)
+        binding.clipboardSuggestion.setTextColor(theme.getAttr(Theme.Attr.SMARTBAR_BUTTON_FOREGROUND).toSolidColor().color)
         for (view in candidateViewList) {
-            view.setTextColor(prefs.theme.smartbarFgColor)
+            view.setTextColor(theme.getAttr(Theme.Attr.SMARTBAR_FOREGROUND).toSolidColor().color)
         }
+        invalidate()
     }
 
     fun setEventListener(listener: EventListener) {

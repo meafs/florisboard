@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-package dev.patrickgold.florisboard.settings.fragments
+package dev.patrickgold.florisboard.ime.text.key
 
-import android.os.Bundle
-import androidx.preference.PreferenceFragmentCompat
-import dev.patrickgold.florisboard.R
+import java.util.*
 
-class ThemeCustomizeFragment : PreferenceFragmentCompat() {
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        addPreferencesFromResource(R.xml.prefs_theme)
+/**
+ * Enum for declaring the utility key actions.
+ */
+enum class UtilityKeyAction {
+    SWITCH_TO_EMOJIS,
+    SWITCH_LANGUAGE,
+    SWITCH_KEYBOARD_APP,
+    DYNAMIC_SWITCH_LANGUAGE_EMOJIS,
+    DISABLED;
+
+    companion object {
+        fun fromString(string: String): UtilityKeyAction {
+            return valueOf(string.toUpperCase(Locale.ENGLISH))
+        }
     }
 }
